@@ -1,13 +1,19 @@
-
 import TarjetaOferta from "./TarjetaOferta.jsx";
 
 export default function ListaOfertas({
     ofertas,
     favoritos,
-    onAlternarFavorito
+    onAlternarFavorito,
+    seleccionados,
+    onAlternarComparacion,
+    mensajeVacio
 }) {
     if (ofertas.length === 0) {
-        return <p>No se han encontrado ofertas.</p>;
+        return (
+            <p className="mensaje-vacio">
+                {mensajeVacio}
+            </p>
+        );
     }
 
     return (
@@ -16,8 +22,17 @@ export default function ListaOfertas({
                 <TarjetaOferta
                     key={oferta.dealID}
                     oferta={oferta}
-                    esFavorita={favoritos.includes(oferta.dealID)}
+                    esFavorita={
+                        favoritos.includes(oferta.dealID)
+                    }
                     onAlternarFavorito={onAlternarFavorito}
+                    seleccionadaComparacion={
+                        seleccionados.includes(oferta.dealID)
+                    }
+                    onAlternarComparacion={onAlternarComparacion}
+                    comparacionLlena={
+                        seleccionados.length >= 2
+                    }
                 />
             ))}
         </section>

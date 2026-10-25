@@ -1,12 +1,20 @@
 import { useState, useEffect } from "react";
 
-export default function useLocalStorage(clave, valorInicial) {
+export default function useLocalStorage(
+    clave,
+    valorInicial,
+    validar = () => true
+) {
     const [valor, setValor] = useState(() => {
         try {
             const guardado = localStorage.getItem(clave);
 
             if (guardado !== null) {
-                return JSON.parse(guardado);
+                const dato = JSON.parse(guardado);
+
+                if (validar(dato)) {
+                    return dato;
+                }
             }
         } catch (error) {
             console.warn("Error al leer localStorage:", error);
@@ -17,7 +25,10 @@ export default function useLocalStorage(clave, valorInicial) {
 
     useEffect(() => {
         try {
-            localStorage.setItem(clave, JSON.stringify(valor));
+            localStorage.setItem(
+                clave,
+                JSON.stringify(valor)
+            );
         } catch (error) {
             console.warn("Error al guardar en localStorage:", error);
         }

@@ -1,152 +1,163 @@
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-import { obtenerOfertas } from "./services/api.js";
 import {
-    prepararOfertas,
     filtrarOfertas,
     filtrarPorPrecio,
     ordenarOfertas,
     calcularAhorroTotal
 } from "./utils/logic.js";
 
+import useOfertas from "./hooks/useOfertas.js";
 import useLocalStorage from "./hooks/useLocalStorage.js";
 
 import Filtros from "./components/Filtros.jsx";
 import ListaOfertas from "./components/ListaOfertas.jsx";
 import ResumenAhorro from "./components/ResumenAhorro.jsx";
 import EstadoCarga from "./components/EstadoCarga.jsx";
+import ComparadorOfertas from "./components/ComparadorOfertas.jsx";
 
 import "./App.css";
 
-function mensajeDeError(error) {
-    if (typeof error.status === "number") {
-        return `CheapShark ha respondido con un error HTTP (${error.status}).`;
-    }
-
-    if (error instanceof TypeError) {
-        return "No se ha podido conectar con CheapShark.";
-    }
-
-    return "No se han podido cargar las ofertas.";
-}
-
 export default function App() {
-    // Estado de las ofertas
-    const [ofertas, setOfertas] = useState([]);
-    const [cargando, setCargando] = useState(true);
-    const [error, setError] = useState(null);
-    const [intentoCarga, setIntentoCarga] = useState(0);
+    // Consulta a CheapShark
+    const {
+        ofertas,
+        estado,
+        error,
+        reintentar
+    } = useOfertas();
 
     // Estado de los filtros
-    const [busqueda, setBusqueda] = useState("");
-    const [precioMaximo, setPrecioMaximo] = useState("");
-    const [orden, setOrden] = useState("");
-    const [soloFavoritos, setSoloFavoritos] = useState(false);
+    const [filtros, setFiltros] = useState({
+        busqueda: "",
+        precioMaximo: "",
+        orden: "",
+        soloFavoritos: false
+    });
 
-    // Bonus: favoritos guardados en localStorage
+    // Favoritos guardados en localStorage
     const [favoritos, setFavoritos] = useLocalStorage(
         "favoritosCheapShark",
-        []
+        [],
+        Array.isArray
     );
 
-    const favoritosValidos = Array.isArray(favoritos)
-        ? favoritos
-        : [];
+    // Videojuegos seleccionados para comparar
+    const [seleccionados, setSeleccionados] = useState([]);
 
-    // Una única carga para el inicio y los reintentos
-    useEffect(() => {
-        let activo = true;
-
-        async function cargarOfertas() {
-            try {
-                const datos = await obtenerOfertas();
-                const preparadas = prepararOfertas(datos);
-
-                if (activo) {
-                    setOfertas(preparadas);
-                }
-            } catch (errorCapturado) {
-                if (activo) {
-                    setOfertas([]);
-                    setError(mensajeDeError(errorCapturado));
-                }
-            } finally {
-                if (activo) {
-                    setCargando(false);
-                }
-            }
-        }
-
-        cargarOfertas();
-
-        return () => {
-            activo = false;
-        };
-    }, [intentoCarga]);
-
-    // El botón solicita una nueva carga
-    function reintentar() {
-        setCargando(true);
-        setError(null);
-        setIntentoCarga((actual) => actual + 1);
+    // Actualizar un filtro
+    function cambiarFiltro(nombre, valor) {
+        setFiltros((anteriores) => ({
+            ...anteriores,
+            [nombre]: valor
+        }));
     }
 
-    // Añadir o quitar un favorito sin modificar el array original
+    // Añadir o quitar un videojuego de favoritos
     function alternarFavorito(dealID) {
         setFavoritos((actuales) => {
-            const lista = Array.isArray(actuales)
-                ? actuales
-                : [];
-
-            if (lista.includes(dealID)) {
-                return lista.filter((id) => id !== dealID);
+            if (actuales.includes(dealID)) {
+                return actuales.filter(
+                    (id) => id !== dealID
+                );
             }
 
-            return [...lista, dealID];
+            return [...actuales, dealID];
         });
     }
 
-    // Valores derivados: no necesitan estado propio
-    const filtradas = filtrarOfertas(ofertas, busqueda);
-    const porPrecio = filtrarPorPrecio(filtradas, precioMaximo);
+    // Seleccionar o quitar videojuegos del comparador
+    function alternarComparacion(dealID) {
+        setSeleccionados((actuales) => {
+            if (actuales.includes(dealID)) {
+                return actuales.filter(
+                    (id) => id !== dealID
+                );
+            }
 
-    const ofertasFavoritas = soloFavoritos
+            if (actuales.length >= 2) {
+                return actuales;
+            }
+
+            return [...actuales, dealID];
+        });
+    }
+
+    // Vaciar el comparador
+    function limpiarComparacion() {
+        setSeleccionados([]);
+    }
+
+    // Filtrar y ordenar las ofertas
+    // Son valores derivados, no necesitan useState
+    const filtradas = filtrarOfertas(
+        ofertas,
+        filtros.busqueda
+    );
+
+    const porPrecio = filtrarPorPrecio(
+        filtradas,
+        filtros.precioMaximo
+    );
+
+    const ofertasFavoritas = filtros.soloFavoritos
         ? porPrecio.filter((oferta) =>
-            favoritosValidos.includes(oferta.dealID)
+            favoritos.includes(oferta.dealID)
         )
         : porPrecio;
 
-    const ofertasVisibles = ordenarOfertas(ofertasFavoritas, orden);
-    const ahorroTotal = calcularAhorroTotal(ofertasVisibles);
+    const ofertasVisibles = ordenarOfertas(
+        ofertasFavoritas,
+        filtros.orden
+    );
+
+    // Calcular el ahorro de las ofertas visibles
+    const ahorroTotal = calcularAhorroTotal(
+        ofertasVisibles
+    );
+
+    // Obtener los videojuegos seleccionados para comparar
+    const ofertasComparadas = seleccionados
+        .map((id) =>
+            ofertas.find((oferta) => oferta.dealID === id)
+        )
+        .filter(Boolean);
+
+    // Mensaje dependiendo de por qué no hay resultados
+    let mensajeVacio;
+
+    if (ofertas.length === 0) {
+        mensajeVacio = "No hay ofertas disponibles.";
+    } else if (filtros.soloFavoritos) {
+        mensajeVacio = "No hay favoritos que coincidan con los filtros.";
+    } else {
+        mensajeVacio = "No hay videojuegos que coincidan con los filtros.";
+    }
 
     return (
         <main className="contenedor-principal">
             <header className="cabecera">
                 <h1>Ofertas de videojuegos</h1>
+
                 <p>
-                    Encuentra descuentos de videojuegos con CheapShark.
+                    Encuentra descuentos de videojuegos
+                    con CheapShark.
                 </p>
             </header>
 
             <Filtros
-                busqueda={busqueda}
-                setBusqueda={setBusqueda}
-                precioMaximo={precioMaximo}
-                setPrecioMaximo={setPrecioMaximo}
-                orden={orden}
-                setOrden={setOrden}
-                soloFavoritos={soloFavoritos}
-                setSoloFavoritos={setSoloFavoritos}
+                filtros={filtros}
+                onCambiarFiltro={cambiarFiltro}
             />
 
             <EstadoCarga
-                cargando={cargando}
+                cargando={estado === "cargando"}
                 error={error}
                 onReintentar={reintentar}
             />
 
-            {!cargando && !error && (
+            {estado === "correcto" && (
                 <>
                     <p className="contador-ofertas">
                         Mostrando {ofertasVisibles.length} de{" "}
@@ -155,10 +166,18 @@ export default function App() {
 
                     <ResumenAhorro total={ahorroTotal} />
 
+                    <ComparadorOfertas
+                        ofertas={ofertasComparadas}
+                        onLimpiar={limpiarComparacion}
+                    />
+
                     <ListaOfertas
                         ofertas={ofertasVisibles}
-                        favoritos={favoritosValidos}
+                        favoritos={favoritos}
                         onAlternarFavorito={alternarFavorito}
+                        seleccionados={seleccionados}
+                        onAlternarComparacion={alternarComparacion}
+                        mensajeVacio={mensajeVacio}
                     />
                 </>
             )}

@@ -1,8 +1,10 @@
-
 export default function TarjetaOferta({
     oferta,
     esFavorita,
-    onAlternarFavorito
+    onAlternarFavorito,
+    seleccionadaComparacion,
+    onAlternarComparacion,
+    comparacionLlena
 }) {
     return (
         <article className="tarjeta-oferta">
@@ -16,19 +18,46 @@ export default function TarjetaOferta({
 
             <h3>{oferta.title}</h3>
 
-            <p>Precio: {oferta.salePrice.toFixed(2)} $</p>
-            <p>Antes: {oferta.normalPrice.toFixed(2)} $</p>
-            <p>Descuento: {oferta.savings.toFixed(0)} %</p>
+            <p>
+                Precio: {oferta.salePrice.toFixed(2)} $
+            </p>
+
+            <p>
+                Antes: {oferta.normalPrice.toFixed(2)} $
+            </p>
+
+            <p>
+                Descuento: {oferta.savings.toFixed(0)} %
+            </p>
 
             <button
                 type="button"
                 className="boton-favorito"
                 aria-pressed={esFavorita}
-                onClick={() => onAlternarFavorito(oferta.dealID)}
+                onClick={() =>
+                    onAlternarFavorito(oferta.dealID)
+                }
             >
                 {esFavorita
-                    ? "♥ Quitar de favoritos"
-                    : "♡ Añadir a favoritos"}
+                    ? " Quitar de favoritos"
+                    : " Añadir a favoritos"}
+            </button>
+
+            <button
+                type="button"
+                className="boton-comparar"
+                aria-pressed={seleccionadaComparacion}
+                disabled={
+                    comparacionLlena &&
+                    !seleccionadaComparacion
+                }
+                onClick={() =>
+                    onAlternarComparacion(oferta.dealID)
+                }
+            >
+                {seleccionadaComparacion
+                    ? "Quitar de comparación"
+                    : "Comparar videojuego"}
             </button>
 
             {oferta.dealID && (

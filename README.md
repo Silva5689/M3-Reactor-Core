@@ -83,3 +83,19 @@ Para el sistema de favoritos decidí crear un custom hook llamado `useLocalStora
 También decidí guardar únicamente los identificadores `dealID` de los videojuegos, en lugar de duplicar todos los datos de cada oferta.
 
 Así el código queda más organizado y puedo reutilizar el hook para guardar otros valores si lo necesito.
+
+### Decisión 5:
+
+Después de la primera evaluación de la M3, decidí mejorar la separación de responsabilidades de `App.jsx`.
+
+Para ello extraje la consulta a CheapShark a un custom hook llamado `useOfertas`, que gestiona la carga, los errores y los reintentos. También añadí `AbortController` para cancelar las peticiones que ya no corresponden.
+
+Además, decidí agrupar los valores de los filtros en un único objeto, en lugar de utilizar cuatro estados separados y pasar ocho props a `Filtros.jsx`.
+
+### Decisión 6:
+
+Para mejorar la originalidad de la M3, añadí un comparador de dos videojuegos.
+
+Decidí guardar únicamente sus identificadores y calcular los datos de la comparación a partir de las ofertas que ya tenía cargadas.
+
+Descarté hacer nuevas peticiones a CheapShark cada vez que se selecciona un videojuego, porque los datos necesarios ya están disponibles. Tampoco añadí otro `useEffect`, ya que la comparación se puede calcular directamente.

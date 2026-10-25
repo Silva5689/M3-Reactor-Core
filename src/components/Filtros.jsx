@@ -1,13 +1,6 @@
-
 export default function Filtros({
-    busqueda,
-    setBusqueda,
-    precioMaximo,
-    setPrecioMaximo,
-    orden,
-    setOrden,
-    soloFavoritos,
-    setSoloFavoritos
+    filtros,
+    onCambiarFiltro
 }) {
     return (
         <section className="filtros">
@@ -15,13 +8,17 @@ export default function Filtros({
                 <label htmlFor="busqueda">
                     Buscar videojuego:
                 </label>
+
                 <input
                     id="busqueda"
                     type="search"
                     placeholder="Ej: GTA, FIFA, Minecraft..."
-                    value={busqueda}
+                    value={filtros.busqueda}
                     onChange={(evento) =>
-                        setBusqueda(evento.target.value)
+                        onCambiarFiltro(
+                            "busqueda",
+                            evento.target.value
+                        )
                     }
                 />
             </div>
@@ -30,15 +27,19 @@ export default function Filtros({
                 <label htmlFor="precio-maximo">
                     Precio máximo ($):
                 </label>
+
                 <input
                     id="precio-maximo"
                     type="number"
                     min="0"
                     step="0.01"
                     placeholder="Sin límite"
-                    value={precioMaximo}
+                    value={filtros.precioMaximo}
                     onChange={(evento) =>
-                        setPrecioMaximo(evento.target.value)
+                        onCambiarFiltro(
+                            "precioMaximo",
+                            evento.target.value
+                        )
                     }
                 />
             </div>
@@ -47,11 +48,15 @@ export default function Filtros({
                 <label htmlFor="orden">
                     Ordenar por:
                 </label>
+
                 <select
                     id="orden"
-                    value={orden}
+                    value={filtros.orden}
                     onChange={(evento) =>
-                        setOrden(evento.target.value)
+                        onCambiarFiltro(
+                            "orden",
+                            evento.target.value
+                        )
                     }
                 >
                     <option value="">Orden original</option>
@@ -71,9 +76,12 @@ export default function Filtros({
                 <label className="filtro-favoritos">
                     <input
                         type="checkbox"
-                        checked={soloFavoritos}
+                        checked={filtros.soloFavoritos}
                         onChange={(evento) =>
-                            setSoloFavoritos(evento.target.checked)
+                            onCambiarFiltro(
+                                "soloFavoritos",
+                                evento.target.checked
+                            )
                         }
                     />
                     Mostrar solo favoritos

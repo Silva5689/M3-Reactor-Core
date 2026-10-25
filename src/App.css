@@ -246,3 +246,106 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Comparador de videojuegos */
+
+.comparador-ofertas {
+    padding: 24px;
+    margin-bottom: 30px;
+    background: #151e30;
+    border: 1px solid #334155;
+    border-radius: 14px;
+}
+
+.cabecera-comparador {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.cabecera-comparador h2 {
+    margin: 0 0 8px;
+    font-size: 1.25rem;
+}
+
+.cabecera-comparador p {
+    margin: 0;
+    color: #94a3b8;
+}
+
+.comparacion-lista {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.comparacion-tarjeta {
+    padding: 18px;
+    background: #0b1120;
+    border: 1px solid #334155;
+    border-radius: 10px;
+}
+
+.comparacion-tarjeta h3 {
+    margin-top: 0;
+}
+
+.comparacion-tarjeta p {
+    color: #cbd5e1;
+}
+
+.resultado-comparacion {
+    padding: 15px;
+    background: #152d32;
+    border-radius: 8px;
+    color: #6ee7b7;
+    font-weight: 600;
+}
+
+.boton-comparar,
+.boton-limpiar {
+    padding: 11px 12px;
+    border: 1px solid #38bdf8;
+    border-radius: 8px;
+    background: #172c42;
+    color: #e0f2fe;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.boton-comparar {
+    width: 100%;
+}
+
+.boton-comparar:hover,
+.boton-comparar[aria-pressed="true"] {
+    background: #075985;
+}
+
+.boton-comparar:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.mensaje-vacio {
+    padding: 25px;
+    text-align: center;
+    color: #cbd5e1;
+    background: #151e30;
+    border: 1px solid #334155;
+    border-radius: 12px;
+}
+
+@media (max-width: 600px) {
+    .cabecera-comparador {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .comparacion-lista {
+        grid-template-columns: 1fr;
+    }
+}

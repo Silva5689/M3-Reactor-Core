@@ -1,5 +1,5 @@
-export function filtrarOfertas(ofertas, busqueda) {
 
+export function filtrarOfertas(ofertas, busqueda) {
     const texto = busqueda.trim().toLowerCase();
 
     return ofertas.filter(oferta =>
@@ -8,7 +8,6 @@ export function filtrarOfertas(ofertas, busqueda) {
 }
 
 export function filtrarPorPrecio(ofertas, precioMaximo) {
-
     if (precioMaximo === "") {
         return ofertas;
     }
@@ -25,7 +24,6 @@ export function filtrarPorPrecio(ofertas, precioMaximo) {
 }
 
 export function prepararOfertas(ofertas) {
-
     if (!Array.isArray(ofertas)) {
         throw new Error("La API no ha devuelto un array de ofertas.");
     }
@@ -52,19 +50,48 @@ export function prepararOfertas(ofertas) {
         );
 }
 
-export function calcularAhorroTotal(ofertas) {
+// Devuelve las ofertas visibles aplicando todos los filtros en orden.
+export function filtrarYOrdenarOfertas(ofertas, filtros, favoritos) {
+    const filtradas = filtrarOfertas(ofertas, filtros.busqueda);
+    const porPrecio = filtrarPorPrecio(filtradas, filtros.precioMaximo);
 
+    const ofertasFavoritas = filtros.soloFavoritos
+        ? porPrecio.filter(oferta => favoritos.includes(oferta.dealID))
+        : porPrecio;
+
+    return ordenarOfertas(ofertasFavoritas, filtros.orden);
+}
+
+// Evitamos repetir este cálculo en varias partes de la interfaz.
+export function calcularAhorroOferta(oferta) {
+    return oferta.normalPrice - oferta.salePrice;
+}
+
+export function calcularAhorroTotal(ofertas) {
     const total = ofertas.reduce((acumulado, oferta) => {
-        return acumulado + (oferta.normalPrice - oferta.salePrice);
+        return acumulado + calcularAhorroOferta(oferta);
     }, 0);
 
     return Math.round(total * 100) / 100;
 }
 
+// Compara el precio actual de dos ofertas, sin modificar los datos.
+export function compararPrecios(ofertaA, ofertaB) {
+    const diferencia = Math.abs(ofertaA.salePrice - ofertaB.salePrice);
+
+    let indiceMasBarato = null;
+
+    if (ofertaA.salePrice < ofertaB.salePrice) {
+        indiceMasBarato = 0;
+    } else if (ofertaB.salePrice < ofertaA.salePrice) {
+        indiceMasBarato = 1;
+    }
+
+    return { diferencia, indiceMasBarato };
+}
+
 export function ordenarOfertas(ofertas, criterio) {
-
     switch (criterio) {
-
         case "precio-asc":
             return ofertas.toSorted((a, b) => a.salePrice - b.salePrice);
 

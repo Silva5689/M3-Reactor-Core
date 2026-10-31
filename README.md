@@ -99,3 +99,13 @@ Para mejorar la originalidad de la M3, añadí un comparador de dos videojuegos.
 Decidí guardar únicamente sus identificadores y calcular los datos de la comparación a partir de las ofertas que ya tenía cargadas.
 
 Descarté hacer nuevas peticiones a CheapShark cada vez que se selecciona un videojuego, porque los datos necesarios ya están disponibles. Tampoco añadí otro `useEffect`, ya que la comparación se puede calcular directamente.
+
+### Decisión 7:
+
+Después de recibir la evaluación de la M3, decidí mejorar algunas partes del código que se podían organizar mejor.
+
+Primero moví el filtrado que tenía en `App.jsx` a una función de `logic.js` llamada `filtrarYOrdenarOfertas`. Así, en App solo tengo que llamar a esa función y pasarle las ofertas, los filtros y los favoritos. Preferí hacerlo así en vez de crear otro hook porque no necesitaba añadir más estados ni efectos.
+
+También mejoré el comparador. Antes únicamente mostraba la diferencia entre los precios de los dos videojuegos. Ahora indica cuál de los dos tiene el precio más bajo, o si cuestan lo mismo.
+
+Por último, moví los cálculos de ahorro y comparación a `logic.js` para no repetir esa lógica dentro de los componentes.

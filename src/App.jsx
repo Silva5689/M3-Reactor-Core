@@ -1,10 +1,7 @@
-
 import { useState } from "react";
 
 import {
-    filtrarOfertas,
-    filtrarPorPrecio,
-    ordenarOfertas,
+    filtrarYOrdenarOfertas,
     calcularAhorroTotal
 } from "./utils/logic.js";
 
@@ -89,33 +86,14 @@ export default function App() {
         setSeleccionados([]);
     }
 
-    // Filtrar y ordenar las ofertas
-    // Son valores derivados, no necesitan useState
-    const filtradas = filtrarOfertas(
+    // Son valores derivados: no necesitan useState ni useEffect.
+    const ofertasVisibles = filtrarYOrdenarOfertas(
         ofertas,
-        filtros.busqueda
+        filtros,
+        favoritos
     );
 
-    const porPrecio = filtrarPorPrecio(
-        filtradas,
-        filtros.precioMaximo
-    );
-
-    const ofertasFavoritas = filtros.soloFavoritos
-        ? porPrecio.filter((oferta) =>
-            favoritos.includes(oferta.dealID)
-        )
-        : porPrecio;
-
-    const ofertasVisibles = ordenarOfertas(
-        ofertasFavoritas,
-        filtros.orden
-    );
-
-    // Calcular el ahorro de las ofertas visibles
-    const ahorroTotal = calcularAhorroTotal(
-        ofertasVisibles
-    );
+    const ahorroTotal = calcularAhorroTotal(ofertasVisibles);
 
     // Obtener los videojuegos seleccionados para comparar
     const ofertasComparadas = seleccionados

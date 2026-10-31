@@ -1,8 +1,17 @@
+import {
+    calcularAhorroOferta,
+    compararPrecios
+} from "../utils/logic.js";
+
 export default function ComparadorOfertas({
     ofertas,
     onLimpiar
 }) {
     const comparacionCompleta = ofertas.length === 2;
+
+    const comparacion = comparacionCompleta
+        ? compararPrecios(ofertas[0], ofertas[1])
+        : null;
 
     return (
         <section className="comparador-ofertas">
@@ -34,12 +43,22 @@ export default function ComparadorOfertas({
 
             {ofertas.length > 0 && (
                 <div className="comparacion-lista">
-                    {ofertas.map((oferta) => (
+                    {ofertas.map((oferta, indice) => (
                         <article
-                            className="comparacion-tarjeta"
+                            className={
+                                comparacion?.indiceMasBarato === indice
+                                    ? "comparacion-tarjeta comparacion-tarjeta--mas-barata"
+                                    : "comparacion-tarjeta"
+                            }
                             key={oferta.dealID}
                         >
                             <h3>{oferta.title}</h3>
+
+                            {comparacion?.indiceMasBarato === indice && (
+                                <p className="etiqueta-mejor-precio">
+                                    Precio más bajo
+                                </p>
+                            )}
 
                             <p>
                                 Precio actual:{" "}
@@ -58,10 +77,7 @@ export default function ComparadorOfertas({
 
                             <p>
                                 Ahorras:{" "}
-                                {(
-                                    oferta.normalPrice -
-                                    oferta.salePrice
-                                ).toFixed(2)} $
+                                {calcularAhorroOferta(oferta).toFixed(2)} $
                             </p>
                         </article>
                     ))}
@@ -75,14 +91,18 @@ export default function ComparadorOfertas({
                 </p>
             )}
 
-            {comparacionCompleta && (
-                <p className="resultado-comparacion">
-                    Diferencia entre precios actuales:{" "}
-                    {Math.abs(
-                        ofertas[0].salePrice -
-                        ofertas[1].salePrice
-                    ).toFixed(2)} $
-                </p>
+            {comparacion && (
+                <div className="resultado-comparacion">
+                    <p>
+                        Diferencia entre precios actuales:{" "}
+                        {comparacion.diferencia.toFixed(2)} $
+                    </p>
+                    <p>
+                        {comparacion.indiceMasBarato === null
+                            ? "Ambos videojuegos tienen el mismo precio actual."
+                            : `Más barato: ${ofertas[comparacion.indiceMasBarato].title}`}
+                    </p>
+                </div>
             )}
         </section>
     );

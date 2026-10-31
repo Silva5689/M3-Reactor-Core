@@ -1,4 +1,3 @@
-
 .contenedor-principal {
     max-width: 1250px;
     margin: 0 auto;
@@ -297,12 +296,37 @@
     color: #cbd5e1;
 }
 
+/* Resalta cuál tiene el precio actual más bajo. */
+.comparacion-tarjeta--mas-barata {
+    border: 2px solid #34d399;
+    background: #102b2a;
+}
+
+.comparacion-tarjeta .etiqueta-mejor-precio {
+    display: inline-block;
+    margin: 0 0 12px;
+    padding: 5px 9px;
+    border-radius: 6px;
+    background: #064e3b;
+    color: #a7f3d0;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
 .resultado-comparacion {
     padding: 15px;
     background: #152d32;
     border-radius: 8px;
     color: #6ee7b7;
     font-weight: 600;
+}
+
+.resultado-comparacion p {
+    margin: 0;
+}
+
+.resultado-comparacion p + p {
+    margin-top: 8px;
 }
 
 .boton-comparar,
